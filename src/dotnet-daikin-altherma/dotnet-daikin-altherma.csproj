@@ -5,6 +5,29 @@
     <RootNamespace>dotnet_daikin_altherma</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Title>C# library for Daikin Altherma</Title>
+    <Authors>Jiri Binko</Authors>
+    <Description>C# library which can talk to Daikin Altherma via LAN adapter BRP069A61 or BRP069A62</Description>
+    <Copyright>Copyright (c) 2022 Jiri Binko</Copyright>
+    <PackageProjectUrl>https://github.com/jbinko/dotnet-daikin-altherma</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/jbinko/dotnet-daikin-altherma</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>Daikin;Altherma;LAN adapter;BRP069A61;BRP069A62;</PackageTags>
+    <PackageReleaseNotes>This is Initial version</PackageReleaseNotes>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>
