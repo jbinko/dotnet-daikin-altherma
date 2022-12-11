@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33110.190
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotnet-daikin-altherma", "src\dotnet-daikin-altherma\dotnet-daikin-altherma.csproj", "{98668529-9642-4969-99D0-ACA550991639}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{98668529-9642-4969-99D0-ACA550991639}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98668529-9642-4969-99D0-ACA550991639}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98668529-9642-4969-99D0-ACA550991639}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98668529-9642-4969-99D0-ACA550991639}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {20F12E45-D4C5-411D-963E-C9587EC9D491}
+	EndGlobalSection
+EndGlobal
