@@ -5,6 +5,11 @@ VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotnet-daikin-altherma", "src\dotnet-daikin-altherma\dotnet-daikin-altherma.csproj", "{98668529-9642-4969-99D0-ACA550991639}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "dotnet-daikin-altherma-sample", "samples\dotnet-daikin-altherma-sample\dotnet-daikin-altherma-sample.csproj", "{D08D04C1-088E-4757-B903-6D060592C22A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{98668529-9642-4969-99D0-ACA550991639} = {98668529-9642-4969-99D0-ACA550991639}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +20,10 @@ Global
 		{98668529-9642-4969-99D0-ACA550991639}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98668529-9642-4969-99D0-ACA550991639}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98668529-9642-4969-99D0-ACA550991639}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D08D04C1-088E-4757-B903-6D060592C22A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D08D04C1-088E-4757-B903-6D060592C22A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D08D04C1-088E-4757-B903-6D060592C22A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D08D04C1-088E-4757-B903-6D060592C22A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
