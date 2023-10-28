@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using System.Net.WebSockets;
 using System.Text.Json.Nodes;
 
@@ -10,9 +11,11 @@ namespace DotNet.Daikin.Altherma
         Standby
     }
 
+    public record NetworkInfo(IPAddress IPAddress, string Subnet, string GW, string[] Dns, bool Dhcp, string MacAddress);
+
     public record DeviceInfo(string AdapterModel, float IndoorTemperature,
         float OutdoorTemperature, float LeavingWaterTemperature,
-        float TargetTemperature, PowerState PowerState);
+        float? TargetTemperature, PowerState PowerState);
 
     public sealed class DaikinAltherma : IDisposable
     {
@@ -41,7 +44,8 @@ namespace DotNet.Daikin.Altherma
                 "1/Sensor/OutdoorTemperature/la", "/m2m:rsp/pc/m2m:cin/con");
             var leavingWaterTemperature = await RequestValueHPAsync<float>(
                 "1/Sensor/LeavingWaterTemperatureCurrent/la", "/m2m:rsp/pc/m2m:cin/con");
-            var targetTemperature = await RequestValueHPAsync<float>(
+            // Only if you are in Temperature Mode
+            var targetTemperature = await RequestValueHPAsync<float?>(
                 "1/Operation/TargetTemperature/la", "/m2m:rsp/pc/m2m:cin/con");
             var powerState = await RequestValueHPAsync<string>(
                 "1/Operation/Power/la", "/m2m:rsp/pc/m2m:cin/con");
@@ -49,6 +53,63 @@ namespace DotNet.Daikin.Altherma
             return new DeviceInfo(adapterModel, indoorTemperature,
                 outdoorTemperature, leavingWaterTemperature,
                 targetTemperature, ParsePowerState(powerState));
+        }
+
+        public async Task<NetworkInfo> GetNetworkInfoAsync()
+        {
+            var networkSettingsJson = await RequestValueHPAsync<string>(
+                "0/NetworkSettings/la", "/m2m:rsp/pc/m2m:cin/con");
+
+            if (String.IsNullOrWhiteSpace(networkSettingsJson))
+                throw new InvalidOperationException("Network Settings Json is null or empty.");
+
+            var networkSettingsObj = JsonObject.Parse(networkSettingsJson);
+            if (networkSettingsObj == null)
+                throw new InvalidOperationException("Network Settings Object is null.");
+
+            var networkSettingsDataObj = networkSettingsObj["data"];
+            if (networkSettingsDataObj == null)
+                throw new InvalidOperationException("Network Settings Data Object is null.");
+
+            var ip = (string?)networkSettingsDataObj["ip"];
+            if (String.IsNullOrWhiteSpace(ip))
+                throw new InvalidOperationException("IP element is null or empty.");
+
+            var subnet = (string?)networkSettingsDataObj["subnet"];
+            if (String.IsNullOrWhiteSpace(subnet))
+                throw new InvalidOperationException("Subnet element is null or empty.");
+
+            var gw = (string?)networkSettingsDataObj["gw"];
+            if (String.IsNullOrWhiteSpace(gw))
+                throw new InvalidOperationException("GW element is null or empty.");
+
+            var mac = (string?)networkSettingsDataObj["mac"];
+            if (String.IsNullOrWhiteSpace(mac))
+                throw new InvalidOperationException("Mac element is null or empty.");
+
+            var dhcp = (bool?)networkSettingsDataObj["dhcp"];
+            if (!dhcp.HasValue)
+                throw new InvalidOperationException("Dhcp element is null.");
+
+            var dnsNode = networkSettingsDataObj["dns"];
+            if (dnsNode == null)
+                throw new InvalidOperationException("Dns Node is null.");
+
+            var dnsArray = dnsNode.AsArray();
+
+            var dnsRecords = new List<string>();
+            if (dnsArray != null)
+            {
+                foreach (var dnsItem in dnsArray)
+                {
+                    var dns = (string?)dnsItem;
+                    if (String.IsNullOrWhiteSpace(dns))
+                        throw new InvalidOperationException("Dns Item is null or empty.");
+                    dnsRecords.Add(dns);
+                }
+            }
+
+            return new NetworkInfo(IPAddress.Parse(ip), subnet, gw, dnsRecords.ToArray(), dhcp.Value, mac);
         }
 
         public async Task SetTargetTemperatureAsync(int targetTemperature)
@@ -106,6 +167,11 @@ namespace DotNet.Daikin.Altherma
                 throw new InvalidOperationException(
                     $"Returned TO: '{returnedTo}' doesn't match. Expected: '{DaikinAltherma.UserAgent}'.");
 
+            // If error, return default
+            var returnedRsc = JsonGetValue<int>(result, "/m2m:rsp/rsc");
+            if (returnedRsc != 2000)
+                return default(T)!;
+            
             return JsonGetValue<T>(result, outputPath);
         }
 

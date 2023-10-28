@@ -3,6 +3,16 @@
 using var da = new DaikinAltherma();
 await da.ConnectAsync("myDaikinHost");
 
+var networkInfo = await da.GetNetworkInfoAsync();
+
+Console.WriteLine($"IPAddress:  {networkInfo.IPAddress}");
+Console.WriteLine($"Subnet:     {networkInfo.Subnet}");
+Console.WriteLine($"GW:         {networkInfo.GW}");
+Console.WriteLine($"DNS:        {String.Join(",", networkInfo.Dns)}");
+Console.WriteLine($"DHCP:       {networkInfo.Dhcp}");
+Console.WriteLine($"MacAddress: {networkInfo.MacAddress}");
+Console.WriteLine();
+
 for (; ; )
 {
     var info = await da.GetDeviceInfoAsync();
@@ -15,5 +25,6 @@ for (; ; )
     //await da.SetHeatingAsync(PowerState.On);
     //await da.SetTargetTemperatureAsync(23);
 
+    Console.WriteLine($"------------------------------------");
     System.Threading.Thread.Sleep(30 * 1000); // Report each 30s
 }
