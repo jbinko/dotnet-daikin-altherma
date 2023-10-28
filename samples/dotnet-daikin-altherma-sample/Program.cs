@@ -22,6 +22,9 @@ for (; ; )
     Console.WriteLine($"Leaving Water Temperature: {info.LeavingWaterTemperature}");
     Console.WriteLine($"Target Temperature:        {info.TargetTemperature}");
     Console.WriteLine($"Power State:               {info.PowerState}");
+    Console.WriteLine($"Emergency State:           {info.EmergencyState}");
+    Console.WriteLine($"Error State:               {info.ErrorState}");
+    Console.WriteLine($"Warning State:             {info.WarningState}");
     //await da.SetHeatingAsync(PowerState.On);
     //await da.SetTargetTemperatureAsync(23);
 

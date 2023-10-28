@@ -15,7 +15,8 @@ namespace DotNet.Daikin.Altherma
 
     public record DeviceInfo(string AdapterModel, float IndoorTemperature,
         float OutdoorTemperature, float LeavingWaterTemperature,
-        float? TargetTemperature, PowerState PowerState);
+        float? TargetTemperature, PowerState PowerState,
+        int EmergencyState, int ErrorState, int WarningState);
 
     public sealed class DaikinAltherma : IDisposable
     {
@@ -49,10 +50,17 @@ namespace DotNet.Daikin.Altherma
                 "1/Operation/TargetTemperature/la", "/m2m:rsp/pc/m2m:cin/con");
             var powerState = await RequestValueHPAsync<string>(
                 "1/Operation/Power/la", "/m2m:rsp/pc/m2m:cin/con");
+            var emergencyState = await RequestValueHPAsync<int>(
+                "1/UnitStatus/EmergencyState/la", "/m2m:rsp/pc/m2m:cin/con");
+            var errorState = await RequestValueHPAsync<int>(
+                "1/UnitStatus/ErrorState/la", "/m2m:rsp/pc/m2m:cin/con");
+            var warningState = await RequestValueHPAsync<int>(
+                "1/UnitStatus/WarningState/la", "/m2m:rsp/pc/m2m:cin/con");
 
             return new DeviceInfo(adapterModel, indoorTemperature,
                 outdoorTemperature, leavingWaterTemperature,
-                targetTemperature, ParsePowerState(powerState));
+                targetTemperature, ParsePowerState(powerState),
+                emergencyState, errorState, warningState);
         }
 
         public async Task<NetworkInfo> GetNetworkInfoAsync()
