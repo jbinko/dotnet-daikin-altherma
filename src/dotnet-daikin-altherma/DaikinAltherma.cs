@@ -15,7 +15,7 @@ namespace DotNet.Daikin.Altherma
 
     public record DeviceInfo(string AdapterModel, float IndoorTemperature,
         float OutdoorTemperature, float LeavingWaterTemperature,
-        float? TargetTemperature, PowerState PowerState,
+        float? TargetTemperature, float? TargetTemperatureOffset, PowerState PowerState,
         int EmergencyState, int ErrorState, int WarningState);
 
     public sealed class DaikinAltherma : IDisposable
@@ -34,7 +34,7 @@ namespace DotNet.Daikin.Altherma
 
             await _ws.ConnectAsync(new Uri($"ws://{hostname}/mca"), CancellationToken.None);
         }
-
+        
         public async Task<DeviceInfo> GetDeviceInfoAsync()
         {
             var adapterModel = await RequestValueAsync<string>(
@@ -48,6 +48,9 @@ namespace DotNet.Daikin.Altherma
             // Only if you are in Temperature Mode
             var targetTemperature = await RequestValueHPAsync<float?>(
                 "1/Operation/TargetTemperature/la", "/m2m:rsp/pc/m2m:cin/con");
+            // Only if you are in Offset Temperature Mode
+            var targetTemperatureOffset = await RequestValueHPAsync<float?>(
+                "1/Operation/LeavingWaterTemperatureOffsetHeating/la", "/m2m:rsp/pc/m2m:cin/con");
             var powerState = await RequestValueHPAsync<string>(
                 "1/Operation/Power/la", "/m2m:rsp/pc/m2m:cin/con");
             var emergencyState = await RequestValueHPAsync<int>(
@@ -59,7 +62,7 @@ namespace DotNet.Daikin.Altherma
 
             return new DeviceInfo(adapterModel, indoorTemperature,
                 outdoorTemperature, leavingWaterTemperature,
-                targetTemperature, ParsePowerState(powerState),
+                targetTemperature, targetTemperatureOffset, ParsePowerState(powerState),
                 emergencyState, errorState, warningState);
         }
 
@@ -120,11 +123,11 @@ namespace DotNet.Daikin.Altherma
             return new NetworkInfo(IPAddress.Parse(ip), subnet, gw, dnsRecords.ToArray(), dhcp.Value, mac);
         }
 
-        public async Task SetTargetTemperatureAsync(int targetTemperature)
+        public async Task<bool> SetTargetTemperatureAsync(int targetTemperature)
         {
             if (targetTemperature < 16 || targetTemperature > 30)
                 throw new InvalidOperationException(
-                    $"Target temperature value must be between 16-30. Provided value: '{targetTemperature}'.");
+                    $"Target temperature value must be between 16 and 30. Provided value: '{targetTemperature}'.");
 
             var payload = new JsonObject
             {
@@ -132,10 +135,27 @@ namespace DotNet.Daikin.Altherma
                 ["cnf"] = "text/plain:0",
             };
 
-            await RequestValueHPAsync<string>("1/Operation/TargetTemperature", "/m2m:rsp/rqi", payload);
+            var res = await RequestValueHPAsync<int>("1/Operation/TargetTemperature", "/m2m:rsp/rsc", payload);
+            return (res == 2000 || res == 2001);
         }
 
-        public async Task SetHeatingAsync(PowerState powerState)
+        public async Task<bool> SetTargetTemperatureOffsetAsync(int targetTemperatureOffset)
+        {
+            if (targetTemperatureOffset < -10 || targetTemperatureOffset > 10)
+                throw new InvalidOperationException(
+                    $"Target temperature offset value must be between -10 and 10. Provided value: '{targetTemperatureOffset}'.");
+
+            var payload = new JsonObject
+            {
+                ["con"] = targetTemperatureOffset,
+                ["cnf"] = "text/plain:0",
+            };
+
+            var res = await RequestValueHPAsync<int>("1/Operation/LeavingWaterTemperatureOffsetHeating", "/m2m:rsp/rsc", payload);
+            return (res == 2000 || res == 2001);
+        }
+
+        public async Task<bool> SetHeatingAsync(PowerState powerState)
         {
             var payload = new JsonObject
             {
@@ -143,7 +163,8 @@ namespace DotNet.Daikin.Altherma
                 ["cnf"] = "text/plain:0",
             };
 
-            await RequestValueHPAsync<string>("1/Operation/Power", "/m2m:rsp/rqi", payload);
+            var res = await RequestValueHPAsync<int>("1/Operation/Power", "/m2m:rsp/rsc", payload);
+            return (res == 2000 || res == 2001);
         }
 
         private async Task<T> RequestValueHPAsync<T>(string item, string outputPath, JsonObject? payload = null)
@@ -177,7 +198,7 @@ namespace DotNet.Daikin.Altherma
 
             // If error, return default
             var returnedRsc = JsonGetValue<int>(result, "/m2m:rsp/rsc");
-            if (returnedRsc != 2000)
+            if (!((returnedRsc == 2000) || (returnedRsc == 2001)))
                 return default(T)!;
             
             return JsonGetValue<T>(result, outputPath);

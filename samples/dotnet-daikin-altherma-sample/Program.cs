@@ -21,12 +21,14 @@ for (; ; )
     Console.WriteLine($"Indoor Temperature:        {info.IndoorTemperature}");
     Console.WriteLine($"Leaving Water Temperature: {info.LeavingWaterTemperature}");
     Console.WriteLine($"Target Temperature:        {info.TargetTemperature}");
+    Console.WriteLine($"Target Temperature Offset: {info.TargetTemperatureOffset}");
     Console.WriteLine($"Power State:               {info.PowerState}");
     Console.WriteLine($"Emergency State:           {info.EmergencyState}");
     Console.WriteLine($"Error State:               {info.ErrorState}");
     Console.WriteLine($"Warning State:             {info.WarningState}");
-    //await da.SetHeatingAsync(PowerState.On);
-    //await da.SetTargetTemperatureAsync(23);
+    //var ok = await da.SetHeatingAsync(PowerState.On);
+    //var ok = await da.SetTargetTemperatureAsync(23);
+    //var ok = await da.SetTargetTemperatureOffsetAsync(-1);
 
     Console.WriteLine($"------------------------------------");
     System.Threading.Thread.Sleep(30 * 1000); // Report each 30s
