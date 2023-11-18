@@ -54,6 +54,8 @@ for (; ; )
 
 ## Releases
 
+- Version Next
+  - New method DisconnectAsync to complement exisitng method ConnectAsync
 - Version 2.0.0
   - Adds support for two modes (Configure with Room Temperature and Configure with Outside Temperature)
   - Error handling for action methods: SetHeatingAsync, SetTargetTemperatureAsync, SetTargetTemperatureOffsetAsync

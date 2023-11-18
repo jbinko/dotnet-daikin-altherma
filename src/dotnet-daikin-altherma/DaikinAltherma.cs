@@ -34,7 +34,13 @@ namespace DotNet.Daikin.Altherma
 
             await _ws.ConnectAsync(new Uri($"ws://{hostname}/mca"), CancellationToken.None);
         }
-        
+
+        public async Task DisconnectAsync()
+        {
+            if (_ws.State == WebSocketState.Open)
+                await _ws.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, CancellationToken.None);
+        }
+
         public async Task<DeviceInfo> GetDeviceInfoAsync()
         {
             var adapterModel = await RequestValueAsync<string>(
